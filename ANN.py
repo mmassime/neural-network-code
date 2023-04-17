@@ -36,6 +36,7 @@ class ANN:
         return np.exp(inputs) / np.sum(np.exp(inputs))
 
     def forward(self, inputs, expected_output):
+        self.inputs = inputs
         prev_layer = inputs
         outputs = []
         output = []
@@ -50,8 +51,7 @@ class ANN:
         outputs.append(res)
         loss = res - expected_output
         loss = np.sum(np.power(loss, 2))
-        d = self.backProp(outputs, expected_output)
-        return outputs, d
+        self.backProp(outputs, expected_output)
     
     def backProp(self, outputs, expected_outptus):
         d_layer = []
@@ -72,4 +72,95 @@ class ANN:
             next_layer = self.layers[i]
             d_next_layer = d_layer
             d_layers.insert(0, d_layer)
-        return d_layers
+        prev_input = self.inputs
+        d_layer_weights = []
+        for i in range(len(self.layers)):
+            d_weights = []
+            for j in range(len(self.layers[i])):
+                d_weight = []
+                for k in range(len(prev_input)):
+                    d_weight.append(prev_input[k]*d_layers[i][j])
+                d_weights.append(d_weight)
+            d_layer_weights.append(d_weights)
+            prev_input = d_layers[i]
+        d_weights = []
+        for j in range(len(self.output_layer)):
+            d_weight = []
+            for k in range(len(prev_input)):
+                d_weight.append(prev_input[k]*d_layers[-1][j])
+            d_weights.append(d_weight)
+        d_layer_weights.append(d_weights)
+
+        self.updateParams(d_layers, d_layer_weights)
+    
+    def updateParams(self, d_layers, d_weights):
+        for i in range(len(self.layers)):
+            for j in range(len(self.layers[i])):
+                node = self.layers[i][j]
+                node.bias -= self.learning_rate*d_layers[i][j]
+                for k in range(len(node.weights)):
+                    node.weights[k] -= self.learning_rate*d_weights[i][j][k]
+        for j in range(len(self.output_layer)):
+            node = self.output_layer[j]
+            node.bias -= self.learning_rate*d_layers[-1][j]
+            for k in range(len(node.weights)):
+                node.weights[k] -= self.learning_rate*d_weights[-1][j][k]
+    def toHotOne(self, y):
+        res = [0]*self.n_outputs
+        res[y] = 1
+        return res
+    def toClass(self, y):
+        return np.where(y==1)
+    
+    def accuracy(self, pred, Y):
+        pred = np.array(pred)
+        Y = np.array(Y)
+        return np.sum(pred == Y) / Y.size
+    
+    def training(self, X, Y, iterations):
+        for idx, layer in enumerate(self.layers):
+            print("layer n :" + str(idx))
+            for i, n in enumerate(layer):
+                print("for neuron n: " + str(i))
+                print("weights = " + str(n.weights[:10]))
+                print("bias = " + str(n.bias))
+        print("output layer")
+        for i, n in enumerate(self.output_layer):
+            print("weights = " + str(n.weights))
+            print("bias = " + str(n.bias))
+        for i in range(iterations):
+            print(i)
+            for x,y in zip(X,Y):
+                res = self.toHotOne(y)
+                self.forward(x, res)
+               
+            if i % 10 == 0:
+                predictions = self.predict(X)
+                print("at iteration :", i)
+                print("accuracy : ", self.accuracy(predictions, Y))
+                for idx, layer in enumerate(self.layers):
+                    print("layer n :" + str(idx))
+                    for i, n in enumerate(layer):
+                        print("for neuron n: " + str(i))
+                        print("weights = " + str(n.weights[:10]))
+                        print("bias = " + str(n.bias))
+                print("output layer")
+                for i, n in enumerate(self.output_layer):
+                    print("weights = " + str(n.weights))
+                    print("bias = " + str(n.bias))
+    def predict(self, X):
+        predictions = []
+        for x in X:
+            prev_layer = x
+            outputs = []
+            output = []
+            for layer in self.layers:
+                output = [n(prev_layer) for n in layer]
+                prev_layer = self.Relu(output)
+                outputs.append(prev_layer)
+            final_output = [n(prev_layer) for n in self.output_layer]    
+            final_output = self.SoftMax(final_output)
+            max_res = np.max(final_output)
+            res = np.where(final_output == max_res, 1, 0)
+            predictions.append(res[0])
+        return predictions

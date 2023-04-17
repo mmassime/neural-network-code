@@ -1,17 +1,10 @@
 from ANN import ANN
 import numpy as np
-neural_network = ANN(2, 2, 2, 2, 0.1)
+from keras.datasets import mnist
 
-for idx, layer in enumerate(neural_network.layers):
-    print("layer n :" + str(idx))
-    for i, n in enumerate(layer):
-        print("for neuron n: " + str(i))
-        print("weights = " + str(n.weights))
-        print("bias = " + str(n.bias))
-print("output layer")
-for i, n in enumerate(neural_network.output_layer):
-    print("weights = " + str(n.weights))
-    print("bias = " + str(n.bias))
-inputs = np.array([1,1])
-outputs, d= neural_network.forward(inputs, [1,0])
-print(outputs, d)
+(train_X, train_y), (test_X, test_y) = mnist.load_data()
+train_X = train_X.reshape(60000, 784)
+test_X = test_X.reshape(10000,784)
+neural_network = ANN(784, 1, 10,10,0.5)
+
+neural_network.training(train_X[:1000], train_y[:1000],1000)
