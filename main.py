@@ -1,13 +1,40 @@
 from ANN2 import ANN
 import numpy as np
-#from keras.datasets import mnist
-"""
+from keras.datasets import mnist
+
 (train_X, train_y), (test_X, test_y) = mnist.load_data()
 train_X = train_X.reshape(60000, 784)
 test_X = test_X.reshape(10000,784)
-neural_network = ANN(784, 1, 10,10,0.1)
-
-neural_network.training(train_X[:1000], train_y[:1000],1000)
-"""
-neural_network = ANN(2,2,2, 0.1)
-print(neural_network.predict([1,1]))
+neural_network = ANN(784,200,10,0.2)
+epochs = 5
+"""for e in range(epochs):
+    print(e)
+    for x,y in zip(train_X[:10000], train_y[:10000]):
+        target = np.zeros(10)
+        target[y] = 10
+        neural_network.train(x,target)
+    predictions = []
+    for x in test_X:
+        pred = neural_network.predict(x)
+        maxPred = np.max(pred)
+        pred = np.where(pred==maxPred)
+        predictions.append(pred[0][0])
+    print("the accuracy is : ", neural_network.accuracy(predictions,test_y))"""
+epochs = 5
+for e in range(epochs):
+    # go through all records in the training data set
+    for x,y in zip(train_X[:60000], train_y[:60000]):
+    # split the record by the ',' commas
+        # scale and shift the inputs
+        inputs = (np.asfarray(x) / 255.0 * 0.99) + 0.01
+        targets = np.zeros(10) + 0.01
+        # all_values[0] is the target label for this record
+        targets[y] = 0.99
+        neural_network.train(inputs, targets)
+    predictions = []
+    for x in test_X:
+        pred = neural_network.predict(x)
+        maxPred = np.max(pred)
+        pred = np.where(pred==maxPred)
+        predictions.append(pred[0][0])
+    print("the accuracy is : ", neural_network.accuracy(predictions,test_y))
