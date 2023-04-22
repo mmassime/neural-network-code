@@ -1,25 +1,11 @@
-from ANN2 import ANN
+from ANN import ANN
 import numpy as np
 from keras.datasets import mnist
 
 (train_X, train_y), (test_X, test_y) = mnist.load_data()
 train_X = train_X.reshape(60000, 784)
 test_X = test_X.reshape(10000,784)
-neural_network = ANN(784,200,10,0.2)
-epochs = 5
-"""for e in range(epochs):
-    print(e)
-    for x,y in zip(train_X[:10000], train_y[:10000]):
-        target = np.zeros(10)
-        target[y] = 10
-        neural_network.train(x,target)
-    predictions = []
-    for x in test_X:
-        pred = neural_network.predict(x)
-        maxPred = np.max(pred)
-        pred = np.where(pred==maxPred)
-        predictions.append(pred[0][0])
-    print("the accuracy is : ", neural_network.accuracy(predictions,test_y))"""
+neural_network = ANN(784,1,200,10,0.2)
 epochs = 5
 for e in range(epochs):
     # go through all records in the training data set
