@@ -16,7 +16,11 @@ class ANN():
         self.weights.append(np.random.rand(n_output, n_hidden_neurons) - 0.5)
         #self.w_hidden_output = np.random.rand(n_output, n_hidden_neurons) - 0.5
         self.activation_function = lambda x: scipy.special.expit(x)
-
+    def print(self):
+        for i in range(len(self.weights)):
+            print("layer number :", i)
+            print(self.weights[i].shape)
+            print(self.weights[i][:10])
     def train(self, inputs, targets):
         inputs = np.array(inputs, ndmin=2).T
         targets = np.array(targets, ndmin=2).T
@@ -26,13 +30,15 @@ class ANN():
         for layer in self.weights:
             outputs.append(self.activation_function(np.dot(layer, outputs[-1])))
         output_errors = targets - outputs[-1]
+        current_errors = np.dot(self.weights[-1].T, output_errors)
         self.weights[-1] += self.learning_rate * np.dot((output_errors * outputs[-1] * (1.0 - outputs[-1])),
         np.transpose(outputs[-2]))
-
-        for i in range(len(self.weights)-2,0,-1):
-            output_errors = np.dot(self.weights[i].T, output_errors)
-            layer += self.learning_rate * np.dot((output_errors * outputs[i+1] * (1.0 - outputs[i+1])),
+        output_errors = current_errors
+        for i in range(len(self.weights)-2,-1,-1):
+            current_errors = np.dot(self.weights[i].T, output_errors)
+            self.weights[i] += self.learning_rate * np.dot((output_errors * outputs[i+1] * (1.0 - outputs[i+1])),
             np.transpose(outputs[i]))
+            output_errors = current_errors
 
         #self.weigths[0] += self.learning_rate * np.dot((hidden_errors * outputs[1] * (1.0 - outputs[1])), np.transpose(inputs))
     def Relu(self, inputs):
