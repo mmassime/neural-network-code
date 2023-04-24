@@ -1,4 +1,5 @@
 import numpy as np
+#this import will be deleted in the next version since I want to use ONLY numpy
 import scipy
 
 class ANN():

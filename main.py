@@ -2,23 +2,20 @@ from ANN import ANN
 import numpy as np
 from keras.datasets import mnist
 
-np.random.seed(0)
 (train_X, train_y), (test_X, test_y) = mnist.load_data()
 train_X = train_X.reshape(60000, 784)
 test_X = test_X.reshape(10000,784)
-neural_network = ANN(784,1,200,10,0.2)
-epochs = 1
+neural_network = ANN(784,1,150,10,0.1)
+epochs = 3
 for e in range(epochs):
-    # go through all records in the training data set
     for x,y in zip(train_X, train_y):
-    # split the record by the ',' commas
-        # scale and shift the inputs
+        # preprocessing of the data
         inputs = (np.asfarray(x) / 255.0 * 0.99) + 0.01
         targets = np.zeros(10) + 0.01
-        # all_values[0] is the target label for this record
         targets[y] = 0.99
         neural_network.train(inputs, targets)
     predictions = []
+    #after every epoch print the accuracy on test data
     for x in test_X:
         pred = neural_network.predict(x)
         maxPred = np.max(pred)
